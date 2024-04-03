@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import Modal from '../app/components/Modals/Modal'; 
@@ -41,22 +41,41 @@ describe('Modal コンポーネント', () => {
     // モーダル要素が存在しないことを確認
     expect(screen.queryByText('テストモーダル')).not.toBeInTheDocument(); 
   });
-
-  it('閉じるボタンがクリックされると onClose が呼び出される', () => {
-    render(
-        <Modal 
-        isOpen={false} 
-        onClose={mockOnClose} 
-        onSubmit={mockOnSubmit} 
-        actionLabel="送信"  
-    />
+    
+  it('should call onClose when the close button is clicked', async () => {
+    const onCloseMock = jest.fn();
+    const { findByRole } = render(
+      <Modal isOpen={true} onClose={onCloseMock} onSubmit={() => {}} actionLabel="Submit" />
     );
-
-    const closeButton = screen.getByRole('button', { name: /close/i }); 
-    userEvent.click(closeButton);
-
-    expect(mockOnClose).toHaveBeenCalled();
+    fireEvent.click(await findByRole('button', { name: /close/i }));
+    await waitFor(() => expect(onCloseMock).toHaveBeenCalledTimes(1));
   });
+
+  it('should call onSubmit when the submit button is clicked', async () => {
+    const onSubmitMock = jest.fn();
+    const { getByText } = render(
+      <Modal isOpen={true} onClose={() => {}} onSubmit={onSubmitMock} actionLabel="Submit" />
+    );
+    fireEvent.click(getByText("Submit"));
+    expect(onSubmitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles secondary action when provided', () => {
+    const secondaryActionMock = jest.fn();
+    const { getByText } = render(
+      <Modal
+        isOpen={true}
+        onClose={() => {}}
+        onSubmit={() => {}}
+        actionLabel="Submit"
+        secondaryActionLabel="Secondary Action"
+        secondaryAction={secondaryActionMock}
+      />
+    );
+    fireEvent.click(getByText("Secondary Action"));
+    expect(secondaryActionMock).toHaveBeenCalledTimes(1);
+  });
+
 
 });
 
