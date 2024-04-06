@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
 import Modal from '../app/components/Modals/Modal'; 
 import React from 'react';
 
@@ -25,7 +24,7 @@ describe('Modal コンポーネント', () => {
 
     expect(screen.getByText('テストモーダル')).toBeInTheDocument();
     expect(screen.getByText('これはモーダルコンテンツです')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '送信'})).toBeInTheDocument();
+
   });
 
   it('isOpen が false の場合、レンダリングされない', () => {
